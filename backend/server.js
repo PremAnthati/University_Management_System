@@ -43,7 +43,7 @@ const loginLimiter = rateLimit({
 });
 app.use('/api/auth/student/login', loginLimiter);
 
-// MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/university_system')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
@@ -68,23 +68,23 @@ app.use('/api/results', require('./routes/results'));
 app.use('/api/timetables', require('./routes/timetables'));
 app.use('/api/attendances', require('./routes/attendances'));
 
-// Static uploads
+// Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
 
-// --------- FRONTEND BUILD SERVE ----------
-const frontendPath = path.join(__dirname, "../frontend/build");
-
 // Serve React build folder
+const frontendPath = path.join(__dirname, "../frontend/build");
 app.use(express.static(frontendPath));
 
-// Catch-all for React SPA — Express 5 compatible
-app.get("/:path*", (req, res, next) => {
+/**
+ * EXPRESS 5 COMPATIBLE CATCH-ALL ROUTE
+ * This replaces app.use() which breaks due to "/*" wildcard
+ */
+app.get("/:path(.*)", (req, res, next) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     return next();
   }
   res.sendFile(path.join(frontendPath, "index.html"));
 });
-// ------------------------------------------
 
 // Socket.IO
 io.on('connection', (socket) => {
