@@ -73,14 +73,15 @@ app.use('/api/attendances', require('./routes/attendances'));
 app.use('/uploads', express.static('uploads'));
 
 // Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
 
 // Catch-all handler: send back React's index.html file for client-side routing
 app.use((req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
     return next();
   }
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
 // Socket.IO connection handling
