@@ -449,6 +449,15 @@ const createSampleData = async () => {
     const createdCourses = await Course.insertMany(subjects);
     console.log('Created subjects/courses:', createdCourses.length);
 
+    // Assign courses to faculty
+    for (const course of createdCourses) {
+      await Faculty.findByIdAndUpdate(
+        course.faculty,
+        { $addToSet: { courses: course._id } }
+      );
+    }
+    console.log('Assigned courses to faculty members');
+
     // Enroll existing students in appropriate courses based on their year/semester
     const existingStudents = await Student.find({ registration_status: 'Approved' });
     if (existingStudents.length > 0) {

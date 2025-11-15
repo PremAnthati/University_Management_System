@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Student = require('../models/Student');
 const Admin = require('../models/Admin');
+const Faculty = require('../models/Faculty');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -33,6 +34,53 @@ router.post('/admin/login', async (req, res) => {
         username: admin.username,
         email: admin.email,
         role: admin.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Faculty login
+router.post('/faculty/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log('Faculty login attempt for:', email);
+
+    const faculty = await Faculty.findOne({ email });
+    console.log('Faculty found:', !!faculty);
+    if (!faculty) {
+      console.log('No faculty found with email:', email);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    console.log('Faculty status:', faculty.status, 'ID:', faculty._id);
+    if (faculty.status !== 'active') {
+      console.log('Faculty not active');
+      return res.status(403).json({ message: 'Account not active' });
+    }
+
+    console.log('Checking password...');
+    const isMatch = await bcrypt.compare(password, faculty.password);
+    console.log('Password match result:', isMatch);
+    if (!isMatch) {
+      console.log('Password does not match for faculty:', faculty._id);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: faculty._id, role: 'faculty' },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      token,
+      faculty: {
+        id: faculty._id,
+        name: faculty.name,
+        email: faculty.email,
+        facultyId: faculty.facultyId
       }
     });
   } catch (error) {

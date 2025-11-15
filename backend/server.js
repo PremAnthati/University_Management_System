@@ -57,6 +57,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/departments', require('./routes/departments'));
 app.use('/api/courses', require('./routes/courses'));
 app.use('/api/faculty', require('./routes/faculty'));
+app.use('/api/faculty-operations', require('./routes/facultyOperations'));
+app.use('/api/course-materials', require('./routes/courseMaterials'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/grades', require('./routes/grades'));
 app.use('/api/notifications', require('./routes/notifications'));
@@ -65,6 +67,9 @@ app.use('/api/fees', require('./routes/fees'));
 app.use('/api/results', require('./routes/results'));
 app.use('/api/timetables', require('./routes/timetables'));
 app.use('/api/attendances', require('./routes/attendances'));
+
+// Static file serving for uploads
+app.use('/uploads', express.static('uploads'));
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
