@@ -217,3 +217,4 @@ For support, please contact the development team or create an issue in the repos
 # udms
 # University_Management_System
 # University_Management_System
+# University
