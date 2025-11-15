@@ -1,0 +1,22 @@
+{
+  "name": "university-management-system",
+  "version": "1.0.0",
+  "description": "University Management System",
+  "main": "backend/server.js",
+  "scripts": {
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend",
+    "start": "cd backend && npm start",
+    "dev": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\"",
+    "heroku-postbuild": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
