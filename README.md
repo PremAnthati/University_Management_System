@@ -88,6 +88,43 @@ EMAIL_PASS=your_email_password
 PORT=5050
 ```
 
+## 🚀 Deployment
+
+### Render Deployment
+
+1. **Backend Deployment**
+   - Create a new Web Service on Render
+   - Connect your GitHub repository
+   - Set build command: `npm install`
+   - Set start command: `npm start`
+   - Add environment variables in Render dashboard:
+     - `MONGO_URI`: Your MongoDB connection string (use MongoDB Atlas for production)
+     - `JWT_SECRET`: A secure random string
+     - `EMAIL_USER`: Your email for notifications
+     - `EMAIL_PASS`: Your email password or app password
+     - `FRONTEND_URL`: Your frontend URL on Render (e.g., https://your-frontend.onrender.com)
+
+2. **Frontend Deployment**
+   - Create a new Static Site on Render
+   - Connect your GitHub repository (select frontend folder if needed)
+   - Set build command: `npm run build`
+   - Set publish directory: `build`
+   - Add environment variable if needed: `REACT_APP_API_URL`: Your backend URL on Render (e.g., https://your-backend.onrender.com)
+
+3. **Database**
+   - Use MongoDB Atlas for production database
+   - Update MONGO_URI with the Atlas connection string
+
+### Environment Variables for Production
+
+```env
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/university_system
+JWT_SECRET=your_super_secret_jwt_key_here_123456789
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+FRONTEND_URL=https://your-frontend.onrender.com
+```
+
 ## 📱 Usage
 
 ### Student Portal Access
