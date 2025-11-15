@@ -31,15 +31,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100 
 });
 app.use('/api/', limiter);
 
 // Login rate limiting
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 login attempts per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: 'Too many login attempts, please try again later.'
 });
 app.use('/api/auth/student/login', loginLimiter);
@@ -72,42 +72,40 @@ app.use('/api/attendances', require('./routes/attendances'));
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
 
-// Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+// --------------------------------------
+// SERVE FRONTEND BUILD (IMPORTANT FIX)
+// --------------------------------------
+const frontendPath = path.join(__dirname, "../frontend/build");
 
+app.use(express.static(frontendPath));
 
-// Catch-all handler: send back React's index.html file for client-side routing
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+app.get("/*", (req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     return next();
   }
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
+
+// --------------------------------------
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // Join student room for announcements
   socket.on('join-student-room', (studentId) => {
     socket.join(`student-${studentId}`);
     console.log(`Student ${studentId} joined their room`);
   });
 
-  // Join admin room
   socket.on('join-admin-room', () => {
     socket.join('admin-room');
     console.log('Admin joined admin room');
   });
 
-  // Handle announcement from admin
   socket.on('send-announcement', (announcementData) => {
     console.log('New announcement:', announcementData);
 
-    // Broadcast to all students
     io.to('student-room').emit('new-announcement', announcementData);
-
-    // Also emit to admin room for confirmation
     io.to('admin-room').emit('announcement-sent', announcementData);
   });
 
@@ -121,17 +119,6 @@ app.set('io', io);
 
 app.get('/', (req, res) => {
   res.send('Server is running and ready to handle API requests!');
-});
-
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-
-  // Simple check for demonstration
-  if (email === 'admin@example.com' && password === 'password123') {
-    res.json({ message: 'Login successful!' });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
-  }
 });
 
 const PORT = process.env.PORT || 5050;
