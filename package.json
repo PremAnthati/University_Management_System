@@ -7,7 +7,7 @@
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && npm install",
     "install:all": "npm run install:frontend && npm run install:backend",
-    "build:frontend": "cd frontend && npm run build",
+    "build:frontend": "cd frontend && npm run build && cp -r build ../backend/public",
     "build": "npm run install:all && npm run build:frontend",
     "start": "cd backend && npm start",
     "dev": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\"",

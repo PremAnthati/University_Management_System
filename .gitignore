@@ -15,6 +15,7 @@ yarn-error.log*
 build/
 dist/
 frontend/build/
+backend/public/
 
 # IDE files
 .vscode/
