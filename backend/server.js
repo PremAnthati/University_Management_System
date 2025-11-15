@@ -31,12 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100 
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api/', limiter);
 
-// Login rate limiting
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -44,10 +43,10 @@ const loginLimiter = rateLimit({
 });
 app.use('/api/auth/student/login', loginLimiter);
 
-// MongoDB connection
+// MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/university_system')
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log(err));
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
 
 // Routes
 app.use('/api/students', require('./routes/students'));
@@ -69,42 +68,37 @@ app.use('/api/results', require('./routes/results'));
 app.use('/api/timetables', require('./routes/timetables'));
 app.use('/api/attendances', require('./routes/attendances'));
 
-// Static file serving for uploads
+// Static uploads
 app.use('/uploads', express.static('uploads'));
 
-// --------------------------------------
-// SERVE FRONTEND BUILD (IMPORTANT FIX)
-// --------------------------------------
+// --------- FRONTEND BUILD SERVE ----------
 const frontendPath = path.join(__dirname, "../frontend/build");
 
+// Serve React build folder
 app.use(express.static(frontendPath));
 
-app.get("/*", (req, res, next) => {
+// Catch-all for React SPA — Express 5 compatible
+app.get("/:path*", (req, res, next) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
     return next();
   }
   res.sendFile(path.join(frontendPath, "index.html"));
 });
+// ------------------------------------------
 
-// --------------------------------------
-
-// Socket.IO connection handling
+// Socket.IO
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   socket.on('join-student-room', (studentId) => {
     socket.join(`student-${studentId}`);
-    console.log(`Student ${studentId} joined their room`);
   });
 
   socket.on('join-admin-room', () => {
     socket.join('admin-room');
-    console.log('Admin joined admin room');
   });
 
   socket.on('send-announcement', (announcementData) => {
-    console.log('New announcement:', announcementData);
-
     io.to('student-room').emit('new-announcement', announcementData);
     io.to('admin-room').emit('announcement-sent', announcementData);
   });
@@ -114,7 +108,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Make io available to routes
 app.set('io', io);
 
 app.get('/', (req, res) => {
